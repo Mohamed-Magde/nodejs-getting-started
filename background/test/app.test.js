@@ -1,7 +1,8 @@
 const cp = require('child_process');
 const path = require('path');
-const projectId = process.env.GCLOUD_PROJECT;
-const regionId = process.env.REGION_ID;
+const regionId = process.env.REGION_ID || 'uc';
+const projectId =
+  process.env.GCLOUD_PROJECT || 'firestore-nodejs-getting-start';
 const app = `https://testservice-dot-${projectId}.${regionId}.r.appspot.com`;
 const assert = require('assert');
 const {v4: uuidv4} = require('uuid');
@@ -67,9 +68,7 @@ describe('behavior of cloud function', function () {
     } catch (err) {
       console.log("Wasn't able to delete Google Cloud Functions");
     }
-    const db = new Firestore({
-      project: projectId,
-    });
+    const db = new Firestore();
     const res = await db.collection('/translations').get();
     res.forEach(async (element) => {
       await element.ref.delete();
@@ -79,8 +78,7 @@ describe('behavior of cloud function', function () {
 
   it('should get the correct website', async () => {
     await new Promise((r) => setTimeout(r, 4000));
-
-    const body = await fetch(`${app}`);
+    const body = await fetch(app);
     const res = await body.status;
     assert.strictEqual(res, 200);
   });
